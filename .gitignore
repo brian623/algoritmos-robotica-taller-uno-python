@@ -1,0 +1,21 @@
+# Entornos virtuales
+.venv/
+venv/
+
+# Archivos generados por Python
+__pycache__/
+*.py[cod]
+
+# Herramientas de desarrollo
+.pytest_cache/
+.ruff_cache/
+.coverage
+
+# Editores y sistema operativo
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Gráficas y resultados generados localmente
+output/

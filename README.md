@@ -1,0 +1,45 @@
+# Taller 1 - Python
+
+Ejercicios de la asignatura Electiva de Robótica de la Universidad ECCI.
+
+Cada punto del taller se implementará en un archivo `.py` independiente. Los
+ejercicios se agregarán y publicarán de manera incremental, uno por uno.
+
+## Preparación del entorno
+
+Se recomienda Python 3.11 o una versión posterior.
+
+### Windows (PowerShell)
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python comprobar_entorno.py
+```
+
+### Linux o macOS
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python comprobar_entorno.py
+```
+
+## Dependencias
+
+- NumPy: operaciones con vectores y matrices.
+- Matplotlib: gráficas 2D y 3D.
+- SciPy: respuesta de sistemas y señales.
+- OpenCV: extracción de contornos de imágenes.
+
+El entorno virtual y los resultados generados localmente están excluidos del
+repositorio mediante `.gitignore`.
+
+## Ejercicios resueltos
+
+- `a1_operaciones_vectores.py`: suma, resta, producto punto, producto cruz y
+  división elemento a elemento de dos vectores tridimensionales.
