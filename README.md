@@ -43,3 +43,16 @@ repositorio mediante `.gitignore`.
 
 - `a1_operaciones_vectores.py`: suma, resta, producto punto, producto cruz y
   división elemento a elemento de dos vectores tridimensionales.
+- `a2_operaciones_matrices.py`: operaciones aritméticas, producto matricial y
+  producto cruz por filas entre matrices de 3 x 3.
+- `a3_conversion_coordenadas.py`: conversión de coordenadas rectangulares a
+  cilíndricas y esféricas.
+- `a4_resistencia_pt100.py`: resistencia de una PT100 mediante la ecuación de
+  Callendar-Van Dusen.
+- `a5_matrices_rotacion.py`: funciones que generan matrices de rotación en los
+  ejes X, Y y Z.
+- `a6_fuerza_cilindro.py`: fuerzas teóricas de avance y retroceso de un cilindro
+  neumático de doble efecto.
+
+La explicación matemática y los puntos clave para presentar los ejercicios A.2
+a A.6 están en `GUIA_SUSTENTACION_A2_A6.md`.
