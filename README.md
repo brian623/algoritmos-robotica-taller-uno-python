@@ -53,6 +53,3 @@ repositorio mediante `.gitignore`.
   ejes X, Y y Z.
 - `a6_fuerza_cilindro.py`: fuerzas teóricas de avance y retroceso de un cilindro
   neumático de doble efecto.
-
-La explicación matemática y los puntos clave para presentar los ejercicios A.2
-a A.6 están en `GUIA_SUSTENTACION_A2_A6.md`.
