@@ -62,3 +62,15 @@ repositorio mediante `.gitignore`.
 - `b4_tipos_robots.py`: identificación de las articulaciones de robots
   cilíndricos, cartesianos y esféricos.
 - `b5_desea_continuar.py`: ciclo que pregunta al usuario si desea continuar.
+- `c1_grafica_pt100.py`: curva de resistencia de una PT100 entre -200 °C y
+  200 °C.
+- `c2_sistema_segundo_orden.py`: respuesta al escalón y clasificación de un
+  sistema de segundo orden.
+- `c3_circuito_rc.py`: curvas de carga y descarga de un capacitor en un circuito
+  RC.
+- `c4_vector_3d.py`: representación de un vector ingresado por teclado en un
+  sistema coordenado XYZ.
+- `c5_nombres_integrantes.py`: nombres del grupo dibujados como trazados de
+  líneas y curvas.
+- `c6_contornos_logos.py`: extracción y representación de coordenadas de dos
+  contornos automotrices simplificados.
