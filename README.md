@@ -53,3 +53,12 @@ repositorio mediante `.gitignore`.
   ejes X, Y y Z.
 - `a6_fuerza_cilindro.py`: fuerzas teóricas de avance y retroceso de un cilindro
   neumático de doble efecto.
+- `b1_potencia_circuito.py`: potencia eléctrica a partir del voltaje y la
+  corriente ingresados por teclado.
+- `b2_numeros_aleatorios.py`: generación de enteros aleatorios dentro de un
+  intervalo definido por el usuario.
+- `b3_calculo_volumenes.py`: menú interactivo para calcular volúmenes de cuatro
+  sólidos.
+- `b4_tipos_robots.py`: identificación de las articulaciones de robots
+  cilíndricos, cartesianos y esféricos.
+- `b5_desea_continuar.py`: ciclo que pregunta al usuario si desea continuar.
