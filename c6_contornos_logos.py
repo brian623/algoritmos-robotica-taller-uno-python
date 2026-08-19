@@ -1,68 +1,96 @@
-"""Punto C.6: obtiene coordenadas de contornos de dos logos automotrices."""
+"""Punto C.6: extrae vectores de dos imágenes y reproduce sus logos."""
+
+from pathlib import Path
 
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-def crear_logo_chevrolet() -> np.ndarray:
-    """Crea una máscara binaria simplificada del emblema tipo corbatín."""
-    imagen = np.zeros((300, 500), dtype=np.uint8)
-    puntos = np.array(
-        [[60, 120], [190, 120], [215, 90], [440, 90], [440, 180],
-         [310, 180], [285, 210], [60, 210]],
-        dtype=np.int32,
+CARPETA_MEDIA = Path(__file__).resolve().parent / "media"
+LOGOS = {
+    "Chevrolet": CARPETA_MEDIA / "logo_uno.png",
+    "Honda": CARPETA_MEDIA / "logo_dos.png",
+}
+
+
+def crear_mascara(ruta_imagen: Path) -> np.ndarray:
+    """Carga un logo y crea una máscara binaria de sus trazos oscuros."""
+    if not ruta_imagen.is_file():
+        raise FileNotFoundError(f"No existe la imagen: {ruta_imagen}")
+
+    datos_imagen = np.fromfile(ruta_imagen, dtype=np.uint8)
+    imagen = cv2.imdecode(datos_imagen, cv2.IMREAD_UNCHANGED)
+    if imagen is None:
+        raise FileNotFoundError(f"No se pudo leer la imagen: {ruta_imagen}")
+
+    if imagen.ndim == 2:
+        gris = imagen
+    elif imagen.shape[2] == 4:
+        gris = cv2.cvtColor(imagen[:, :, :3], cv2.COLOR_BGR2GRAY)
+        canal_alfa = imagen[:, :, 3]
+        gris[canal_alfa == 0] = 255
+    else:
+        gris = cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY)
+
+    _, mascara = cv2.threshold(
+        gris, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU
     )
-    cv2.fillPoly(imagen, [puntos], 255)
-    return imagen
+    return mascara
 
 
-def crear_logo_renault() -> np.ndarray:
-    """Crea una máscara binaria simplificada de un emblema romboidal."""
-    imagen = np.zeros((300, 500), dtype=np.uint8)
-    rombo_exterior = np.array([[250, 35], [390, 150], [250, 265], [110, 150]])
-    rombo_interior = np.array([[250, 90], [325, 150], [250, 210], [175, 150]])
-    cv2.fillPoly(imagen, [rombo_exterior.astype(np.int32)], 255)
-    cv2.fillPoly(imagen, [rombo_interior.astype(np.int32)], 0)
-    return imagen
+def extraer_vectores(mascara: np.ndarray) -> list[np.ndarray]:
+    """Devuelve los contornos significativos como vectores de puntos (x, y)."""
+    contornos, _ = cv2.findContours(
+        mascara, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE
+    )
+    vectores = [
+        contorno.reshape(-1, 2)
+        for contorno in contornos
+        if cv2.contourArea(contorno) > 10
+    ]
+    return sorted(vectores, key=cv2.contourArea, reverse=True)
 
 
-def extraer_contornos(imagen: np.ndarray) -> list[np.ndarray]:
-    """Extrae cada contorno como una matriz de coordenadas (x, y)."""
-    contornos, _ = cv2.findContours(imagen, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-    return [contorno.reshape(-1, 2) for contorno in contornos]
+def reproducir_logo(
+    ax: plt.Axes, vectores: list[np.ndarray], nombre: str
+) -> None:
+    """Reproduce un logo uniendo en orden los puntos de cada vector."""
+    for vector in vectores:
+        vector_cerrado = np.vstack([vector, vector[0]])
+        x = vector_cerrado[:, 0]
+        y = -vector_cerrado[:, 1]
+        ax.plot(x, y, color="black", linewidth=2)
 
-
-def graficar_contornos(ax: plt.Axes, contornos: list[np.ndarray], titulo: str) -> None:
-    """Dibuja en un eje las coordenadas de todos los contornos recibidos."""
-    for indice, coordenadas in enumerate(contornos, start=1):
-        x = coordenadas[:, 0]
-        y = -coordenadas[:, 1]
-        ax.plot(x, y, linewidth=2, label=f"Contorno {indice}")
-    ax.set_title(titulo)
+    ax.set_title(nombre)
     ax.set_xlabel("Coordenada X [px]")
     ax.set_ylabel("Coordenada Y [px]")
     ax.set_aspect("equal")
-    ax.grid(True, alpha=0.25)
-    ax.legend()
+    ax.axis("off")
 
 
 def main() -> None:
-    """Genera los logos, extrae sus coordenadas y grafica los contornos."""
-    logos = {
-        "Chevrolet - corbatín simplificado": crear_logo_chevrolet(),
-        "Renault - rombo simplificado": crear_logo_renault(),
-    }
-    resultados = {nombre: extraer_contornos(imagen) for nombre, imagen in logos.items()}
+    """Carga las imágenes, extrae sus vectores y reproduce ambos logos."""
+    resultados: dict[str, list[np.ndarray]] = {}
 
-    for nombre, contornos in resultados.items():
-        cantidad_puntos = sum(len(contorno) for contorno in contornos)
-        print(f"{nombre}: {len(contornos)} contorno(s), {cantidad_puntos} puntos")
+    for nombre, ruta in LOGOS.items():
+        mascara = crear_mascara(ruta)
+        vectores = extraer_vectores(mascara)
+        if not vectores:
+            raise ValueError(f"No se encontraron contornos en {ruta.name}.")
+        resultados[nombre] = vectores
+
+        total_puntos = sum(len(vector) for vector in vectores)
+        print(
+            f"{nombre} ({ruta.name}): "
+            f"{len(vectores)} vector(es), {total_puntos} puntos"
+        )
 
     fig, ejes = plt.subplots(1, 2, figsize=(12, 5))
-    for ax, (nombre, contornos) in zip(ejes, resultados.items()):
-        graficar_contornos(ax, contornos, nombre)
-    fig.suptitle("Coordenadas de contornos de logos automotrices")
+    for ax, (nombre, vectores) in zip(ejes, resultados.items()):
+        reproducir_logo(ax, vectores, nombre)
+
+    fig.suptitle("Logos reproducidos a partir de sus vectores de contorno")
     fig.tight_layout()
     plt.show()
 

@@ -5,8 +5,8 @@ import numpy as np
 from scipy import signal
 
 
-def leer_coeficiente(mensaje: str) -> float:
-    """Solicita un coeficiente numérico hasta recibir una entrada válida."""
+def leer_parametro(mensaje: str) -> float:
+    """Solicita un parámetro numérico hasta recibir una entrada válida."""
     while True:
         try:
             return float(input(mensaje))
@@ -14,11 +14,21 @@ def leer_coeficiente(mensaje: str) -> float:
             print("Entrada no válida. Ingrese un valor numérico.")
 
 
-def factor_amortiguamiento(a2: float, a1: float, a0: float) -> float:
-    """Calcula zeta para el denominador a2*s² + a1*s + a0."""
-    if a2 <= 0 or a0 <= 0 or a1 < 0:
-        raise ValueError("Se requiere a2 > 0, a0 > 0 y a1 >= 0.")
-    return a1 / (2 * np.sqrt(a2 * a0))
+def coeficientes_funcion_transferencia(
+    ganancia: float, frecuencia_natural: float, zeta: float
+) -> tuple[list[float], list[float]]:
+    """Obtiene los coeficientes de la forma canónica de segundo orden."""
+    if ganancia <= 0:
+        raise ValueError("La ganancia K debe ser mayor que cero.")
+    if frecuencia_natural <= 0:
+        raise ValueError("La frecuencia natural debe ser mayor que cero.")
+    if zeta < 0:
+        raise ValueError("El factor de amortiguamiento zeta no puede ser negativo.")
+
+    wn_cuadrado = frecuencia_natural**2
+    numerador = [ganancia * wn_cuadrado]
+    denominador = [1.0, 2 * zeta * frecuencia_natural, wn_cuadrado]
+    return numerador, denominador
 
 
 def clasificar_sistema(zeta: float) -> str:
@@ -31,41 +41,40 @@ def clasificar_sistema(zeta: float) -> str:
 
 
 def calcular_respuesta(
-    numerador: list[float], denominador: list[float]
-) -> tuple[np.ndarray, np.ndarray]:
-    """Calcula la respuesta al escalón de la función de transferencia."""
-    if np.allclose(numerador, 0):
-        raise ValueError("El numerador no puede tener todos sus coeficientes en cero.")
-    numerador_normalizado = np.trim_zeros(np.asarray(numerador, dtype=float), "f")
-    sistema = signal.TransferFunction(numerador_normalizado, denominador)
+    ganancia: float, frecuencia_natural: float, zeta: float
+) -> tuple[np.ndarray, np.ndarray, list[float], list[float]]:
+    """Construye el sistema canónico y calcula su respuesta al escalón."""
+    numerador, denominador = coeficientes_funcion_transferencia(
+        ganancia, frecuencia_natural, zeta
+    )
+    sistema = signal.TransferFunction(numerador, denominador)
     tiempo, respuesta = signal.step(sistema)
-    return tiempo, respuesta
+    return tiempo, respuesta, numerador, denominador
 
 
 def main() -> None:
-    """Solicita coeficientes, clasifica el sistema y grafica su respuesta."""
+    """Solicita K, frecuencia natural y zeta, y grafica la respuesta."""
     print("Función de transferencia de segundo orden")
-    print("G(s) = (b2*s² + b1*s + b0) / (a2*s² + a1*s + a0)\n")
+    print("G(s) = K*wn² / (s² + 2*zeta*wn*s + wn²)\n")
 
     while True:
-        b2 = leer_coeficiente("Coeficiente b2: ")
-        b1 = leer_coeficiente("Coeficiente b1: ")
-        b0 = leer_coeficiente("Coeficiente b0: ")
-        a2 = leer_coeficiente("Coeficiente a2: ")
-        a1 = leer_coeficiente("Coeficiente a1: ")
-        a0 = leer_coeficiente("Coeficiente a0: ")
+        ganancia = leer_parametro("Ganancia K: ")
+        frecuencia_natural = leer_parametro("Frecuencia natural wn [rad/s]: ")
+        zeta = leer_parametro("Factor de amortiguamiento zeta: ")
 
         try:
-            zeta = factor_amortiguamiento(a2, a1, a0)
-            tiempo, respuesta = calcular_respuesta(
-                [b2, b1, b0], [a2, a1, a0]
+            tiempo, respuesta, numerador, denominador = calcular_respuesta(
+                ganancia, frecuencia_natural, zeta
             )
             break
         except ValueError as error:
             print(f"Datos no válidos: {error}\n")
 
     clasificacion = clasificar_sistema(zeta)
-    print(f"\nFactor de amortiguamiento: {zeta:.4f}")
+    print("\nFunción de transferencia obtenida:")
+    print(f"Numerador: {numerador}")
+    print(f"Denominador: {denominador}")
+    print(f"Factor de amortiguamiento: {zeta:.4f}")
     print(f"Tipo de sistema: {clasificacion}")
 
     fig, ax = plt.subplots(figsize=(9, 5))

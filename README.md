@@ -72,5 +72,5 @@ repositorio mediante `.gitignore`.
   sistema coordenado XYZ.
 - `c5_nombres_integrantes.py`: nombres del grupo dibujados como trazados de
   líneas y curvas.
-- `c6_contornos_logos.py`: extracción y representación de coordenadas de dos
-  contornos automotrices simplificados.
+- `c6_contornos_logos.py`: extracción de vectores desde imágenes y reproducción
+  de los logos de Chevrolet y Honda.
